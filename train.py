@@ -9,6 +9,7 @@ from model import Model
 from dataset import AntispoofDataset
 from validation import validation
 
+
 def save_model(model_, save_path, name_postfix=''):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -47,10 +48,10 @@ def train():
 
     val_dataset = AntispoofDataset(paths=val_paths, transform=train_transform)
     val_loader = DataLoader(dataset=val_dataset,
-                              batch_size=batch_size,
-                              shuffle=True,
-                              num_workers=4,
-                              drop_last=False)
+                            batch_size=batch_size,
+                            shuffle=True,
+                            num_workers=4,
+                            drop_last=False)
 
     tq = None
     try:
@@ -88,7 +89,8 @@ def train():
             epoch_loss = np.mean(losses)
             epoch_metrics = validation(model, val_loader=val_loader)
 
-            print('Loss: {:.4f}\tAcc: {:.4f}'.format(epoch_loss, epoch_metrics))
+            print('Loss: {:.4f}\t Metrics: {}'.format(epoch_loss, epoch_metrics))
+            save_model(model, checkpoints_path, name_postfix=f'e{epoch}')
 
     except KeyboardInterrupt:
         tq.close()
