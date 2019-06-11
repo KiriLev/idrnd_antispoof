@@ -29,6 +29,10 @@ class TestAntispoofDataset(torch.utils.data.dataset.Dataset):
     def __len__(self):
         return len(self.paths)
 
+    def load_image(self, path):
+        img = cv2.imread(path)
+        return img
+
 
 if __name__ == '__main__':
 

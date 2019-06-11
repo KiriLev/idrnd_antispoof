@@ -8,6 +8,7 @@ import numpy as np
 from model import Model
 from dataset import AntispoofDataset
 from validation import validation
+import torchvision
 
 
 def save_model(model_, save_path, name_postfix=''):
@@ -24,6 +25,7 @@ def save_model(model_, save_path, name_postfix=''):
 
 
 def train():
+    path_data = './data/idrnd_train_data_v1/train'
     checkpoints_path = './checkpoints'
     num_epochs = 30
     batch_size = 50
@@ -35,18 +37,43 @@ def train():
     optimizer = torch.optim.Adam(model.parameters())
     criterion = torch.nn.BCEWithLogitsLoss()
 
-    train_paths = ['p']  # TODO replace
-    val_paths = ['p']
+    path_images = []
 
-    train_transform = None
+    for label in ['2dmask', 'real', 'printed', 'replay']:
+        videos = os.listdir(os.path.join(path_data, label))
+        for video in videos:
+            path_images.append({
+                'path': os.path.join(path_data, label, video),
+                'label': int(label != 'real'),
+                })
+
+    split_on = int(len(path_images) * 0.8)
+
+    train_paths = path_images[:split_on]
+    val_paths = path_images[split_on:]
+
+    train_transform = torchvision.transforms.Compose([
+        torchvision.transforms.ToPILImage(),
+        torchvision.transforms.Resize(224),
+        torchvision.transforms.RandomHorizontalFlip(),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(
+            [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    val_transform = torchvision.transforms.Compose([
+        torchvision.transforms.ToPILImage(),
+        torchvision.transforms.Resize(224),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(
+            [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
+
     train_dataset = AntispoofDataset(paths=train_paths, transform=train_transform)
     train_loader = DataLoader(dataset=train_dataset,
-                              batch_size=50,
+                              batch_size=20,
                               shuffle=True,
                               num_workers=4,
                               drop_last=True)
 
-    val_dataset = AntispoofDataset(paths=val_paths, transform=train_transform)
+    val_dataset = AntispoofDataset(paths=val_paths, transform=val_transform)
     val_loader = DataLoader(dataset=val_dataset,
                             batch_size=batch_size,
                             shuffle=True,

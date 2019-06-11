@@ -1,7 +1,7 @@
 import torch
-import torchvision
 from torch.utils.data import Dataset
 import cv2
+import os
 
 
 class AntispoofDataset(Dataset):
@@ -12,15 +12,19 @@ class AntispoofDataset(Dataset):
     def __getitem__(self, index):
         image_info = self.paths[index]
 
-        img = self.load_image(image_info['path'])
-        if self.transform is not None:
-            img = self.transform(img)
+        imgs = self.load_images(image_info['path'])
 
-        return img, image_info['label']
+        return imgs, image_info['label']
 
     def __len__(self):
         return len(self.paths)
 
-    def load_image(self, path):
-        img = cv2.imread(path)
-        return img
+    def load_images(self, path):
+        frames = os.listdir(path)
+        imgs = []
+        for p in frames:
+            img = cv2.imread(os.path.join(path, p))
+            if self.transform is not None:
+                img = self.transform(img)
+            imgs.append(img)
+        return torch.stack(imgs)
