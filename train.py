@@ -59,12 +59,13 @@ def train():
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
             [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+
     val_transform = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),
         torchvision.transforms.Resize(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
+            [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
     train_dataset = AntispoofDataset(paths=train_paths, transform=train_transform)
     train_loader = DataLoader(dataset=train_dataset,
