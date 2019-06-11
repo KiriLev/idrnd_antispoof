@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import numpy as np
 
-from model import Model
+from model import TopModel
 from dataset import AntispoofDataset
 from validation import validation
 import torchvision
@@ -29,12 +29,12 @@ def train():
     checkpoints_path = './checkpoints'
     num_epochs = 30
     batch_size = 50
-
-    model = Model()
+    lr = 0.001
+    model = TopModel()
     model.train()
     model = model.cuda()
 
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = torch.nn.BCEWithLogitsLoss()
 
     path_images = []
@@ -87,6 +87,7 @@ def train():
             print('Epoch {}/{}'.format(epoch, num_epochs - 1))
 
             tq = tqdm(total=len(train_loader) * batch_size)
+            tq.set_description(f'Epoch {epoch}, lr {lr}')
 
             losses = []
 
@@ -100,8 +101,8 @@ def train():
 
                 # forward
                 with torch.set_grad_enabled(True):
-                    outputs = model(inputs).view(-1)
-                    loss = criterion(outputs, labels.float())
+                    outputs = model(inputs)
+                    loss = criterion(outputs.view(-1), labels.float())
 
                     # backward + optimize only if in training phase
                     loss.backward()
@@ -110,6 +111,9 @@ def train():
 
                     tq.update(batch_size)
                     losses.append(loss.item())
+
+                intermediate_mean_loss = np.mean(losses[-1:])
+                tq.set_postfix(loss='{:.5f}'.format(intermediate_mean_loss))
 
                 # statistics
 
