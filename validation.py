@@ -24,13 +24,14 @@ def mean_metrics(metrics_list):
 def validation(model, val_loader):
     model.eval()
     metrics = []
-    tq = tqdm(total=len(val_loader) * 20)
+    batch_size = val_loader.batch_size
+    tq = tqdm(total=len(val_loader) * batch_size)
     with torch.no_grad():
         for i, (inputs, labels) in enumerate(val_loader):
             inputs = inputs.cuda()
             labels = labels.cuda()
             outputs = model(inputs).view(-1)
-            tq.update(20)
+            tq.update(batch_size)
             metrics.append(eval_metrics(outputs.cpu().numpy(), labels.cpu().numpy()))
         metrics_mean = mean_metrics(metrics)
     tq.close()

@@ -6,7 +6,7 @@ from tqdm import tqdm
 import numpy as np
 
 from model import TopModel
-from resnet3d import resnet50
+from resnet3d import resnet18
 from dataset import AntispoofDataset
 from validation import validation
 import torchvision
@@ -40,11 +40,12 @@ def train():
     path_data = './data/idrnd_train_data_v1/train'
     checkpoints_path = './checkpoints'
 
-    num_epochs = 30
-    batch_size = 20
-    lr = 0.0001
+    num_epochs = 100
+    batch_size = 30
+    val_batch_size = 10
+    lr = 0.00001
     # model = TopModel()
-    model = resnet50(num_classes=1)
+    model = resnet18(num_classes=1)
     model.train()
     model = model.cuda()
     epoch = 0
@@ -64,14 +65,14 @@ def train():
                 'label': int(label != 'real'),
                 })
 
-    split_on = int(len(path_images) * 0.8)
+    split_on = int(len(path_images) * 0.9)
 
     train_paths = path_images[:split_on]
     val_paths = path_images[split_on:]
 
     train_transform = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),
-        torchvision.transforms.Resize(224),
+        torchvision.transforms.Resize(512),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
@@ -79,7 +80,7 @@ def train():
 
     val_transform = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),
-        torchvision.transforms.Resize(224),
+        torchvision.transforms.Resize(512),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
             [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -93,11 +94,10 @@ def train():
 
     val_dataset = AntispoofDataset(paths=val_paths, transform=val_transform)
     val_loader = DataLoader(dataset=val_dataset,
-                            batch_size=20,
+                            batch_size=val_batch_size,
                             shuffle=True,
                             num_workers=4,
                             drop_last=False)
-
     tq = None
     try:
         for epoch in range(epoch, num_epochs):
