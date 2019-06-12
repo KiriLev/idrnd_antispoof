@@ -6,12 +6,13 @@ from tqdm import tqdm
 import numpy as np
 
 from model import TopModel
+from resnet3d import resnet50
 from dataset import AntispoofDataset
 from validation import validation
 import torchvision
 
 
-def save_model(model_, save_path, name_postfix=''):
+def save_model(model_, epoch, save_path, name_postfix=''):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     model_path = os.path.join(save_path, f"model_{name_postfix}.pt")
@@ -19,20 +20,36 @@ def save_model(model_, save_path, name_postfix=''):
     torch.save(
         {
             'model': model_.state_dict(),
+            'epoch': epoch
             },
         model_path
     )
 
 
+def load_model(model, model_path):
+    state = torch.load(model_path)
+    epoch = state['epoch']
+
+    model.load_state_dict(state['model'])
+    print('Restored model, epoch {}'.format(epoch))
+
+    return epoch, model
+
+
 def train():
     path_data = './data/idrnd_train_data_v1/train'
     checkpoints_path = './checkpoints'
+
     num_epochs = 30
-    batch_size = 50
-    lr = 0.001
-    model = TopModel()
+    batch_size = 20
+    lr = 0.0001
+    # model = TopModel()
+    model = resnet50(num_classes=1)
     model.train()
     model = model.cuda()
+    epoch = 0
+    if os.path.exists(os.path.join(checkpoints_path, 'model_.pt')):
+        epoch, model = load_model(model, os.path.join(checkpoints_path, 'model_.pt'))
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = torch.nn.BCEWithLogitsLoss()
@@ -69,24 +86,21 @@ def train():
 
     train_dataset = AntispoofDataset(paths=train_paths, transform=train_transform)
     train_loader = DataLoader(dataset=train_dataset,
-                              batch_size=20,
+                              batch_size=batch_size,
                               shuffle=True,
                               num_workers=4,
                               drop_last=True)
 
     val_dataset = AntispoofDataset(paths=val_paths, transform=val_transform)
     val_loader = DataLoader(dataset=val_dataset,
-                            batch_size=batch_size,
+                            batch_size=20,
                             shuffle=True,
                             num_workers=4,
                             drop_last=False)
 
     tq = None
     try:
-        for epoch in range(num_epochs):
-
-            print('Epoch {}/{}'.format(epoch, num_epochs - 1))
-
+        for epoch in range(epoch, num_epochs):
             tq = tqdm(total=len(train_loader) * batch_size)
             tq.set_description(f'Epoch {epoch}, lr {lr}')
 
@@ -113,21 +127,21 @@ def train():
                     tq.update(batch_size)
                     losses.append(loss.item())
 
-                intermediate_mean_loss = np.mean(losses[-1:])
+                intermediate_mean_loss = np.mean(losses[-10:])
                 tq.set_postfix(loss='{:.5f}'.format(intermediate_mean_loss))
 
                 # statistics
 
             epoch_loss = np.mean(losses)
             epoch_metrics = validation(model, val_loader=val_loader)
-
-            print('Loss: {:.4f}\t Metrics: {}'.format(epoch_loss, epoch_metrics))
-            save_model(model, checkpoints_path, name_postfix=f'e{epoch}')
+            tq.close()
+            print('\nLoss: {:.4f}\t Metrics: {}'.format(epoch_loss, epoch_metrics))
+            save_model(model, epoch, checkpoints_path, name_postfix=f'e{epoch}')
 
     except KeyboardInterrupt:
         tq.close()
-        print('Ctrl+C, saving model...')
-        save_model(model, checkpoints_path)
+        print('\nCtrl+C, saving model...')
+        save_model(model, epoch, checkpoints_path)
 
 
 if __name__ == '__main__':

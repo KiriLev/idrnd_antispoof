@@ -108,3 +108,17 @@ class TopModel(nn.Module):
         x = self.fc1(x)
         x = self.fc2(x)
         return x
+
+
+class Resnet3D(nn.Module):
+    def __init__(self):
+        super(Resnet3D, self).__init__()
+        self.model = torchvision.models.resnet50()
+
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = x.reshape(x.size(0), -1)
+        x = self.fc1(x)
+        x = self.fc2(x)
+        return x

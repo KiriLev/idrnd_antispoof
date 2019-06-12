@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import cv2
 from resnet3d import resnet50
 
-PATH_MODEL = '/home/levshun/Projects/idrnd_antispoof/checkpoints/model_e2.pt'
+PATH_MODEL = './model_e6.pt'
 BATCH_SIZE = 256
 
 
