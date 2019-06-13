@@ -41,11 +41,11 @@ def train():
     checkpoints_path = './checkpoints'
 
     num_epochs = 100
-    batch_size = 30
+    batch_size = 20
     val_batch_size = 10
     lr = 0.00001
-    # model = TopModel()
-    model = resnet18(num_classes=1)
+    model = TopModel()
+    # model = resnet18(num_classes=1)
     model.train()
     model = model.cuda()
     epoch = 0
@@ -72,7 +72,7 @@ def train():
 
     train_transform = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),
-        torchvision.transforms.Resize(512),
+        torchvision.transforms.Resize(224),
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
@@ -80,7 +80,7 @@ def train():
 
     val_transform = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),
-        torchvision.transforms.Resize(512),
+        torchvision.transforms.Resize(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
             [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])

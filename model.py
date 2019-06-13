@@ -95,18 +95,37 @@ class Encoder(nn.Module):
         return x
 
 
+class Empty(nn.Module):
+    def __init__(self):
+        super(Empty, self).__init__()
+
+    def forward(self, x):
+        return x
+
+
 class TopModel(nn.Module):
     def __init__(self):
         super(TopModel, self).__init__()
-        self.encoder = Encoder(in_channels=5, out_channels=2)
-        self.fc1 = nn.Linear(in_features=294, out_features=int(self.encoder.out_channels/2))
-        self.fc2 = nn.Linear(in_features=int(self.encoder.out_channels/2), out_features=1)
+        self.encoder = torchvision.models.resnet18(pretrained=True)
+        self.encoder.fc = Empty()
+        self.conv1d = nn.Conv1d(
+            in_channels=5,
+            out_channels=1,
+            kernel_size=(3),
+            stride=(2),
+            padding=(1))
+        self.fc = nn.Linear(in_features=256, out_features=1)
 
     def forward(self, x):
-        x = self.encoder(x)
-        x = x.reshape(x.size(0), -1)
-        x = self.fc1(x)
-        x = self.fc2(x)
+        vectors = []
+        for i in range(0, x.shape[1]):
+            v = self.encoder(x[:, i])
+            v = v.reshape(v.size(0), -1)
+            vectors.append(v)
+        vectors = torch.stack(vectors)
+        vectors = vectors.permute((1, 0, 2))
+        vectors = self.conv1d(vectors)
+        x = self.fc(vectors)
         return x
 
 
@@ -114,7 +133,6 @@ class Resnet3D(nn.Module):
     def __init__(self):
         super(Resnet3D, self).__init__()
         self.model = torchvision.models.resnet50()
-
 
     def forward(self, x):
         x = self.encoder(x)
