@@ -5,10 +5,10 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 import cv2
-from resnet3d import resnet18
+from model import TopModel
 
-PATH_MODEL = './model_e35.pt'
-BATCH_SIZE = 256
+PATH_MODEL = './model_e70.pt'
+BATCH_SIZE = 30
 
 
 class AntispoofDataset(Dataset):
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     # prepare dataset and loader
     data_transforms = torchvision.transforms.Compose([
         torchvision.transforms.ToPILImage(),
-        torchvision.transforms.Resize(512),
+        torchvision.transforms.Resize(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
             [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     # load model
 
-    model = resnet18(num_classes=1)
+    model = TopModel()
 
     model.load_state_dict(torch.load(PATH_MODEL)['model'])
     model = model.to(device)

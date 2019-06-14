@@ -41,7 +41,7 @@ def train():
     checkpoints_path = './checkpoints'
 
     num_epochs = 100
-    batch_size = 20
+    batch_size = 10
     val_batch_size = 10
     lr = 0.00001
     model = TopModel()

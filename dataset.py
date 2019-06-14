@@ -20,7 +20,7 @@ class AntispoofDataset(Dataset):
         return len(self.paths)
 
     def load_images(self, path):
-        frames = os.listdir(path)
+        frames = sorted(os.listdir(path))
         imgs = []
         for p in frames:
             img = cv2.imread(os.path.join(path, p))

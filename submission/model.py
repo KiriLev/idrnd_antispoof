@@ -106,7 +106,7 @@ class Empty(nn.Module):
 class TopModel(nn.Module):
     def __init__(self):
         super(TopModel, self).__init__()
-        self.encoder = torchvision.models.resnet50(pretrained=True)
+        self.encoder = torchvision.models.resnet50()
         self.encoder.fc = Empty()
         self.conv1d = nn.Conv1d(
             in_channels=5,
