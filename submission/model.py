@@ -106,15 +106,25 @@ class Empty(nn.Module):
 class TopModel(nn.Module):
     def __init__(self):
         super(TopModel, self).__init__()
-        self.encoder = torchvision.models.resnet50()
+        self.encoder = torchvision.models.resnet50() # pretrainedmodels.se_resnet101(pretrained='imagenet')  #
         self.encoder.fc = Empty()
-        self.conv1d = nn.Conv1d(
+        self.conv1d_1 = nn.Conv1d(
             in_channels=5,
+            out_channels=3,
+            kernel_size=(5),
+            stride=(1),
+            padding=(2))
+        self.conv1d_2 = nn.Conv1d(
+            in_channels=3,
             out_channels=1,
             kernel_size=(3),
-            stride=(2),
+            stride=(1),
             padding=(1))
-        self.fc = nn.Linear(in_features=1024, out_features=1)
+        self.fc = nn.Linear(in_features=2048, out_features=1)
+        # self.fc1 = nn.Linear(in_features=1024, out_features=512)
+        # self.fc2 = nn.Linear(in_features=512, out_features=256)
+        # self.fc3 = nn.Linear(in_features=256, out_features=128)
+        # self.fc4 = nn.Linear(in_features=128, out_features=1)
 
     def forward(self, x):
         vectors = []
@@ -124,8 +134,13 @@ class TopModel(nn.Module):
             vectors.append(v)
         vectors = torch.stack(vectors)
         vectors = vectors.permute((1, 0, 2))
-        vectors = self.conv1d(vectors)
+        vectors = self.conv1d_1(vectors)
+        vectors = self.conv1d_2(vectors)
         x = self.fc(vectors)
+        # x = self.fc1(vectors)
+        # x = self.fc2(x)
+        # x = self.fc3(x)
+        # x = self.fc4(x)
         return x
 
 

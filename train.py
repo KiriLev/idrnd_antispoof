@@ -40,10 +40,12 @@ def train():
     path_data = './data/idrnd_train_data_v1/train'
     checkpoints_path = './checkpoints'
 
-    num_epochs = 100
-    batch_size = 10
+    num_epochs = 1000
+    batch_size = 14
+
     val_batch_size = 10
-    lr = 0.00001
+    lr = 0.001
+    weight_decay = 0.00000001
     model = TopModel()
     # model = resnet18(num_classes=1)
     model.train()
@@ -52,7 +54,7 @@ def train():
     if os.path.exists(os.path.join(checkpoints_path, 'model_.pt')):
         epoch, model = load_model(model, os.path.join(checkpoints_path, 'model_.pt'))
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
     criterion = torch.nn.BCEWithLogitsLoss()
 
     path_images = []

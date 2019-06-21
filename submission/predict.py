@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import cv2
 from model import TopModel
 
-PATH_MODEL = './model_e70.pt'
+PATH_MODEL = './model_e68.pt'
 BATCH_SIZE = 30
 
 

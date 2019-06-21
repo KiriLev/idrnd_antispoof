@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 def eval_metrics(outputs, labels):
     return {
-        'f1': f1_score(y_true=labels, y_pred=(outputs > 0.10).astype(int), average='macro')
+        'f1': f1_score(y_true=labels, y_pred=(outputs > 0.10).astype(int), average='macro')  # working bad,
     }
 
 
