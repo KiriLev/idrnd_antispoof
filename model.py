@@ -14,21 +14,15 @@ class Empty(nn.Module):
 class TopModel(nn.Module):
     def __init__(self):
         super(TopModel, self).__init__()
-        self.encoder = torchvision.models.resnet50(pretrained=True)
+        self.encoder = torchvision.models.resnet50()
         self.encoder.fc = Empty()
         self.conv1d = nn.Conv1d(
             in_channels=5,
-            out_channels=3,
-            kernel_size=(5),
-            stride=(1),
-            padding=(2))
-        self.conv1d_2 = nn.Conv1d(
-            in_channels=3,
             out_channels=1,
             kernel_size=(3),
-            stride=(1),
+            stride=(2),
             padding=(1))
-        self.fc = nn.Linear(in_features=2048, out_features=1)
+        self.fc = nn.Linear(in_features=1024, out_features=1)
 
     def forward(self, x):
         vectors = []
@@ -38,7 +32,6 @@ class TopModel(nn.Module):
             vectors.append(v)
         vectors = torch.stack(vectors)
         vectors = vectors.permute((1, 0, 2))
-        vectors = self.conv1d_1(vectors)
-        vectors = self.conv1d_2(vectors)
+        vectors = self.conv1d(vectors)
         x = self.fc(vectors)
         return x

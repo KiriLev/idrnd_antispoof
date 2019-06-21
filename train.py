@@ -6,7 +6,7 @@ from tqdm import tqdm
 import numpy as np
 
 from model import TopModel
-from resnet3d import resnet18
+
 from dataset import AntispoofDataset
 from validation import validation
 import torchvision
@@ -45,9 +45,9 @@ def train():
 
     val_batch_size = 10
     lr = 0.001
-    weight_decay = 0.00000001
+    weight_decay = 0.0000001
     model = TopModel()
-    # model = resnet18(num_classes=1)
+
     model.train()
     model = model.cuda()
     epoch = 0

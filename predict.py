@@ -5,10 +5,10 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 import cv2
-from resnet3d import resnet50
+from model import TopModel
 
-PATH_MODEL = 'model_path'
-BATCH_SIZE = 256
+PATH_MODEL = './model.pt'
+BATCH_SIZE = 30
 
 
 class AntispoofDataset(Dataset):
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     # load model
 
-    model = resnet50(num_classes=1)
+    model = TopModel()
 
     model.load_state_dict(torch.load(PATH_MODEL)['model'])
     model = model.to(device)

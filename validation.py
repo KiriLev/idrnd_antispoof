@@ -6,11 +6,11 @@ from tqdm import tqdm
 
 def eval_metrics(outputs, labels):
     return {
-        'f1': f1_score(y_true=labels, y_pred=(outputs > 0.10).astype(int), average='macro')  # working bad,
+        'f1': f1_score(y_true=labels, y_pred=(outputs > 0.10).astype(int), average='macro')  # completely sure that it's not working well
     }
 
 
-def mean_metrics(metrics_list):
+def mean_metrics(metrics_list):  # the same
     keys = metrics_list[0].keys()
     metrics = {k: [] for k in keys}
     for k in keys:
